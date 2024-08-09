@@ -30,33 +30,45 @@ def prepare_update_payload(data, part_number, brand_code):
 
     for package in packages:
         if package.get('packages_uom_code') == 'EA':
-            height_cm = None
-            width_cm = None
-            length_cm = None
+            height = None
+            width = None
+            length = None
             weight_kg = None
 
-            # Convert dimensions
+            # Handle dimensions
             if package.get('packages_dimensions_uom_code') == 'IN':
-                height_cm = convert_to_metric(float(package['packages_height']), 2.54) if package['packages_height'] else None
-                width_cm = convert_to_metric(float(package['packages_width']), 2.54) if package['packages_width'] else None
-                length_cm = convert_to_metric(float(package['packages_length']), 2.54) if package['packages_length'] else None
+                height = convert_to_metric(float(package['packages_height']), 2.54) if package['packages_height'] else None
+                width = convert_to_metric(float(package['packages_width']), 2.54) if package['packages_width'] else None
+                length = convert_to_metric(float(package['packages_length']), 2.54) if package['packages_length'] else None
             elif package.get('packages_dimensions_uom_code') == 'CM':
-                height_cm = float(package['packages_height']) if package['packages_height'] else None
-                width_cm = float(package['packages_width']) if package['packages_width'] else None
-                length_cm = float(package['packages_length']) if package['packages_length'] else None
+                height = float(package['packages_height']) if package['packages_height'] else None
+                width = float(package['packages_width']) if package['packages_width'] else None
+                length = float(package['packages_length']) if package['packages_length'] else None
+            elif package.get('packages_dimensions_uom_code') == 'MM':
+                # Leave dimensions in millimeters as they are
+                height = float(package['packages_height']) if package['packages_height'] else None
+                width = float(package['packages_width']) if package['packages_width'] else None
+                length = float(package['packages_length']) if package['packages_length'] else None
 
             # Convert weight
-            if package.get('packages_weights_uom_code') == 'PG':
+            if package.get('packages_weights_uom_code') == 'PG':  # Pounds
                 weight_kg = convert_to_metric(float(package['packages_weight']), 0.453592) if package['packages_weight'] else None
-            elif package.get('packages_weights_uom_code') == 'KG':
+            elif package.get('packages_weights_uom_code') == 'OZ':  # Ounces
+                weight_kg = convert_to_metric(float(package['packages_weight']), 0.0283495) if package['packages_weight'] else None
+            elif package.get('packages_weights_uom_code') == 'GR':  # Grams
+                weight_kg = convert_to_metric(float(package['packages_weight']), 0.001) if package['packages_weight'] else None
+            elif package.get('packages_weights_uom_code') == 'KG':  # Kilograms
                 weight_kg = float(package['packages_weight']) if package['packages_weight'] else None
 
             custom_field_entry = {
                 "custom_fields_part_number": part_number,
                 "custom_fields_brand": brand_code,
-                "custom_fields_Height(cm)": height_cm,
-                "custom_fields_Width(cm)": width_cm,
-                "custom_fields_Length(cm)": length_cm,
+                "custom_fields_Height(cm)": height if package.get('packages_dimensions_uom_code') != 'MM' else None,
+                "custom_fields_Width(cm)": width if package.get('packages_dimensions_uom_code') != 'MM' else None,
+                "custom_fields_Length(cm)": length if package.get('packages_dimensions_uom_code') != 'MM' else None,
+                "custom_fields_Height(mm)": height if package.get('packages_dimensions_uom_code') == 'MM' else None,
+                "custom_fields_Width(mm)": width if package.get('packages_dimensions_uom_code') == 'MM' else None,
+                "custom_fields_Length(mm)": length if package.get('packages_dimensions_uom_code') == 'MM' else None,
                 "custom_fields_Weight(KG)": weight_kg
             }
 
