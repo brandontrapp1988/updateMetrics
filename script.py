@@ -4,7 +4,7 @@ import ssl
 import argparse
 import concurrent.futures
 
-API_TOKEN = 'n7gtRMJeTzkXYWa3RlelBARScEwOSwfBH6G07zbHHYs5tbrEuu7Ottivtn9pAhSH'
+API_TOKEN = ''
 API_URL = 'api.pdm-automotive.com'
 HEADERS = {
     'API-Token': API_TOKEN,
